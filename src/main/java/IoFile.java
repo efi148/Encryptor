@@ -3,40 +3,40 @@ import java.nio.charset.StandardCharsets;
 
 public class IoFile {
   private String sourceFilePath;
-  private String dataToWrite;
+
+  public String getAbsuluteFilePath() {
+    return absuluteFilePath;
+  }
+
+  public void setAbsuluteFilePath(String absuluteFilePath) {
+    this.absuluteFilePath = absuluteFilePath;
+  }
+
+  private String absuluteFilePath;
 
   public IoFile(String sourceFilePath) {
     this.sourceFilePath = sourceFilePath;
   }
 
-  public String readFromFile() {
-    /* if (sourceFilePath.length() == 0) {
-      try {
-        throw new encryptorException("the input is empty!");
-      } catch (encryptorException e) {
-        e.getMessage();
-      }
-    } else if (!sourceFilePath.contains(".")) {
-      try {
-        throw new encryptorException("Filename does not contain extension!");
-      } catch (encryptorException e) {
-        e.getMessage();
-      }
-    }*/
+  public String readFromFile() throws filesException {
+    if (sourceFilePath.length() == 0) {
+      throw new filesException("input is empty!");
+    }
     File file = new File(sourceFilePath);
+
+    this.absuluteFilePath = file.getAbsolutePath();
+
     FileInputStream fis = null;
     try {
       fis = new FileInputStream(file);
     } catch (FileNotFoundException e) {
-      System.err.println("File not found");
+      throw new filesException("file not found!");
     }
-    /*try {
-      if (file.length() == 0) {
-        throw new encryptorException("the file is empty!");
-      }
-    } catch (encryptorException e) {
-      e.getMessage();
-    }*/
+    if (!file.canRead()) {
+      throw new filesException("Read permission denied");
+    } else if (file.length() == 0) {
+      throw new filesException("Oops, the file is empty");
+    }
     byte[] data = new byte[(int) file.length()];
     try {
       fis.read(data);
@@ -47,9 +47,9 @@ public class IoFile {
     return new String(data, StandardCharsets.UTF_8);
   }
 
-  public void writeToFile() {
+  public void writeToFile(String newFilePath, String dataToWrite) {
     try {
-      FileWriter fileWriter = new FileWriter(sourceFilePath);
+      FileWriter fileWriter = new FileWriter(newFilePath);
       fileWriter.write(dataToWrite);
       fileWriter.close();
       System.out.println("Successfully wrote to the file.");
