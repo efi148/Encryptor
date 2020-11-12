@@ -1,9 +1,10 @@
+import java.io.IOException;
 import java.util.Scanner;
 
-public class encryptor {
+public class Encryptor {
   public static void main(String[] args) {
     Scanner scan = new Scanner(System.in);
-    String UserChoice = "";
+    String userChoice = "";
     final String welcomeMessage =
         "    ______                            __            \n"
             + "   / ____/___  ____________  ______  / /_____  _____\n"
@@ -17,61 +18,64 @@ public class encryptor {
 
     System.out.println(welcomeMessage);
 
-    UserChoice = scan.nextLine();
-    while (!(UserChoice.equals("1") || UserChoice.equals("2"))) {
+    userChoice = scan.nextLine();
+    while (!(userChoice.equals("1") || userChoice.equals("2"))) {
       System.out.println("Sorry, i d'ont understand you, Please try again.");
-      UserChoice = scan.nextLine();
+      userChoice = scan.nextLine();
     }
 
-    switch (UserChoice) {
+    switch (userChoice) {
       case ("1"):
         System.out.println(
             "Please enter the path (absolute / relative)\n"
                 + "of file you want to encrypt\n"
-                + "(e.g. 'file.txt')");
+                + "(e.g. 'a.txt')");
         // get the path
         String originalFilePath = scan.nextLine();
 
         // get the data from file
-        IoFile file = new IoFile(originalFilePath);
+        IoFile originalFile = new IoFile(originalFilePath);
         String textToEncrypt = "";
         try {
-          textToEncrypt = file.readFromFile();
-        } catch (filesException e) {
+          textToEncrypt = originalFile.readFromFile();
+        } catch (IOException e) {
           System.err.println(e.getMessage());
         }
 
         // generate key
-        int encryptKey = (int) (Math.random() * 100 + 1);
+        Encryption encryption = new Encryption();
+        int encryptKey = encryption.generateEncryptKey();
 
         // encrypt data
-        StringBuilder newStr = new StringBuilder();
-        for (int i = 0; i < textToEncrypt.length(); i++) {
-          char Char = textToEncrypt.charAt(i);
-          String currentChar = Integer.toHexString(Char);
-          int hexVal = (Integer.parseInt(currentChar, 16) + encryptKey);
-          newStr.append((char) hexVal);
-        }
-        String encryptedStr = newStr.toString();
+        String encryptedStr = encryption.encryptData(textToEncrypt, encryptKey);
 
         // get full original file path
-        String fullOriginalFilePath = file.getAbsuluteFilePath();
+        String fullOriginalFilePath = originalFile.getAbsoluteFilePath();
 
         // generate the new file path
-        String[] arrOfOFP = fullOriginalFilePath.split("\\.");
-        String newFilePath = arrOfOFP[0];
-        newFilePath = newFilePath.concat("_encrypt.");
-        newFilePath = newFilePath.concat(arrOfOFP[1]);
-        file.writeToFile(newFilePath, encryptedStr);
+        String encryptFilePath = generateFilePath(fullOriginalFilePath, "_encrypt.");
+
+        // write the encrypted data to encrypted file
+        try {
+          originalFile.writeToFile(encryptFilePath, encryptedStr);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
 
         // generate the key file path
         String fullKeyFilePath = fullOriginalFilePath.replace(originalFilePath, keyFilePath);
-        file.writeToFile(fullKeyFilePath, String.valueOf(encryptKey));
+
+        // write the key data to key file
+        try {
+          originalFile.writeToFile(fullKeyFilePath, String.valueOf(encryptKey));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
 
         // Print message
         System.out.println(
             "the encrypt file path is in '"
-                + newFilePath
+                + encryptFilePath
                 + "'\n"
                 + "the encrypt key  file path is in '"
                 + fullKeyFilePath
@@ -82,8 +86,10 @@ public class encryptor {
             "Please enter the path (absolute / relative)\n"
                 + "of file you want to decrypt, and then the path of the key");
         // get the path
-        String encryptedFilePath = "a_encrypt.txt" /*scan.nextLine()*/;
-        String keyEncryptFilePath = "key.txt" /*scan.nextLine()*/;
+        System.out.print("copy paste this: 'a_encrypt.txt':  ");
+        String encryptedFilePath = scan.nextLine();
+        System.out.print("copy paste this: 'key.txt': ");
+        String keyEncryptFilePath = scan.nextLine();
 
         // get the data from the files
         IoFile encryptedFile = new IoFile(encryptedFilePath);
@@ -93,39 +99,42 @@ public class encryptor {
         try {
           textToDecrypt = encryptedFile.readFromFile();
           valOfKey = Integer.parseInt(keyFile.readFromFile());
-        } catch (filesException e) {
+        } catch (IOException e) {
           System.err.println(e.getMessage());
         }
 
         // decrypt data
-        StringBuilder decryptedStrBuilder = new StringBuilder();
-        for (int i = 0; i < textToDecrypt.length(); i++) {
-          char Char = textToDecrypt.charAt(i);
-          String currentChar = Integer.toHexString(Char);
-          int hexVal = (Integer.parseInt(currentChar, 16) - valOfKey);
-          decryptedStrBuilder.append((char) hexVal);
-        }
-        String decryptedStr = decryptedStrBuilder.toString();
+        Decryption decryption = new Decryption();
+        String decryptedStr = decryption.decryptData(textToDecrypt, valOfKey);
 
         // get full original file path
-        String fullEncryptedFilePath = encryptedFile.getAbsuluteFilePath();
+        String fullEncryptedFilePath = encryptedFile.getAbsoluteFilePath();
         // get full original key path
-        String fullKeyPath = keyFile.getAbsuluteFilePath();
+        String fullKeyPath = keyFile.getAbsoluteFilePath();
 
         // generate the new file path
-        String[] arrOfFEP = fullEncryptedFilePath.split("\\.");
-        String decryptFilePath = arrOfFEP[0];
-        decryptFilePath = decryptFilePath.concat("_decrypt.");
-        decryptFilePath = decryptFilePath.concat(arrOfFEP[1]);
-        encryptedFile.writeToFile(decryptFilePath, decryptedStr);
+        String decryptFilePath = generateFilePath(fullEncryptedFilePath, "_decrypt.");
+
+        // write the encrypted data to encrypted file
+        try {
+          encryptedFile.writeToFile(decryptFilePath, decryptedStr);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
 
         // Print message
-
         System.out.println("the decrypt file path is in '" + decryptFilePath + "'.");
 
         break;
       default:
-        throw new IllegalStateException("Unexpected value: " + UserChoice);
+        throw new IllegalStateException("Unexpected value: " + userChoice);
     }
+  }
+
+  private static String generateFilePath(String filePath, String textToAppend) {
+    String[] arrOfFP = filePath.split("\\.");
+    String newFilePath = arrOfFP[0];
+    newFilePath = newFilePath.concat(textToAppend);
+    return newFilePath.concat(arrOfFP[1]);
   }
 }

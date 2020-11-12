@@ -1,61 +1,42 @@
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public class IoFile {
-  private String sourceFilePath;
-
-  public String getAbsuluteFilePath() {
-    return absuluteFilePath;
-  }
-
-  public void setAbsuluteFilePath(String absuluteFilePath) {
-    this.absuluteFilePath = absuluteFilePath;
-  }
-
-  private String absuluteFilePath;
+  private final String sourceFilePath;
+  private String absoluteFilePath;
 
   public IoFile(String sourceFilePath) {
     this.sourceFilePath = sourceFilePath;
   }
 
-  public String readFromFile() throws filesException {
+  public String getAbsoluteFilePath() {
+    return absoluteFilePath;
+  }
+
+  public String readFromFile() throws IOException {
     if (sourceFilePath.length() == 0) {
-      throw new filesException("input is empty!");
+      throw new IOException("input is empty!");
     }
     File file = new File(sourceFilePath);
-
-    this.absuluteFilePath = file.getAbsolutePath();
-
-    FileInputStream fis = null;
-    try {
-      fis = new FileInputStream(file);
-    } catch (FileNotFoundException e) {
-      throw new filesException("file not found!");
-    }
+    this.absoluteFilePath = file.getAbsolutePath();
+    FileInputStream fis = new FileInputStream(file);
     if (!file.canRead()) {
-      throw new filesException("Read permission denied");
+      throw new IOException("Read permission denied");
     } else if (file.length() == 0) {
-      throw new filesException("Oops, the file is empty");
+      throw new IOException("Oops, the file is empty");
     }
     byte[] data = new byte[(int) file.length()];
-    try {
-      fis.read(data);
-      fis.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    fis.read(data);
+    fis.close();
     return new String(data, StandardCharsets.UTF_8);
   }
 
-  public void writeToFile(String newFilePath, String dataToWrite) {
-    try {
-      FileWriter fileWriter = new FileWriter(newFilePath);
-      fileWriter.write(dataToWrite);
-      fileWriter.close();
-      System.out.println("Successfully wrote to the file.");
-    } catch (IOException e) {
-      System.out.println("An error occurred.");
-      e.printStackTrace();
-    }
+  public void writeToFile(String filePath, String dataToWrite) throws IOException {
+    FileWriter fileWriter = new FileWriter(filePath);
+    fileWriter.write(dataToWrite);
+    fileWriter.close();
   }
 }
