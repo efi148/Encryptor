@@ -1,10 +1,15 @@
 import java.io.IOException;
 import java.util.Scanner;
 
+// TODO delete all the comments in the class. The code should explain itself
 public class EncryptorProgram {
+  // TODO you never ever initialize a variable like that!!! you must initialize it only inside a function. Refactor!
+  // TODO in addition, you must close your scanner after you opened it
   static Scanner scan = new Scanner(System.in);
+  // TODO likewise the above
   final String keyFilePath = "key.txt";
 
+  // TODO "startEncryption" is not a valid method name. Refactor name! (hint: You can reduce the name to just one word)
   public String startEncryption(int userChoice) {
 
     switch (userChoice) {
@@ -16,6 +21,8 @@ public class EncryptorProgram {
         }
       case (2):
         try {
+          // TODO 2 things are wrong here: 1. Don't return a function call (difficult when there are bugs
+          // TODO                          2. "this.doDecrypt()" is not java...think of another implementation
           return this.doDecrypt();
         } catch (IOException e) {
           System.err.println(e.getMessage());
@@ -25,6 +32,7 @@ public class EncryptorProgram {
     }
   }
 
+  // TODO "doEncrypt" is not a valid method name. Refactor name! (hint: You can reduce the name to just one word)
   public String doEncrypt() throws IOException {
     // get the original file path
     System.out.println(
@@ -35,10 +43,13 @@ public class EncryptorProgram {
 
     // get the data from the original file
     IoFile originalFile = new IoFile(originalFilePath);
+    // TODO readFromFile() should not be in this class. It's an IO operation
     String textToEncrypt = originalFile.readFromFile();
 
     // generate key
+    // TODO you should not instantiate an Encryptor here...In addition Encryptor has a method called generateKey(). why?
     Encryptor encryptor = new Encryptor();
+    // TODO "doEncrypt" is not a valid method name. Refactor name! (hint: You can reduce the name to just one word)
     int encryptKey = encryptor.generateEncryptKey();
 
     // encrypt data
@@ -48,6 +59,8 @@ public class EncryptorProgram {
     String fullOriginalFilePath = originalFile.getAbsoluteFilePath();
 
     // generate the new file path
+    // TODO 2 things are wrong here: 1. Don't return a function call (difficult when there are bugs
+    // TODO                          2. "this.doDecrypt()" is not java...think of another implementation
     String encryptFilePath = this.createFilePath(fullOriginalFilePath, "_encrypt.");
 
     // write the encrypted data to encrypted file
@@ -101,6 +114,7 @@ public class EncryptorProgram {
     return ("the decrypt file path is in '" + decryptFilePath + "'.");
   }
 
+  // TODO this method does not belong here, This is an IO operation...
   private String createFilePath(String filePath, String textToAppend) {
     String[] arrOfFP = filePath.split("\\.");
     String newFilePath = arrOfFP[0];

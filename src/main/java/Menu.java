@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
 public class Menu {
+  // TODO make this variable private. Otherwise, it'll be package accessible
   final String welcomeMessage =
       "    ______                            __            \n"
           + "   / ____/___  ____________  ______  / /_____  _____\n"
@@ -19,7 +20,9 @@ public class Menu {
       System.out.println("Sorry, i d'ont understand you, Please try again.");
       userChoice = scan.nextInt();
     }
+    // TODO what does EncryptorProgram? you have an Encryptor class and an EncryptorProgram class? refactor names!
     EncryptorProgram encryptor = new EncryptorProgram();
+    // TODO what "finishMessage" is? I'm supposed to understand what this variable is just by it's name. refactor name!
     String finishMessage = encryptor.startEncryption(userChoice);
     System.out.println(finishMessage);
   }

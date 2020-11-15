@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+// TODO IO operations/utils are not an object (you have a c'tor here) but a class filled with various util methods. refactor!
 public class IoFile {
   private final String sourceFilePath;
   private final String absoluteFilePath;
