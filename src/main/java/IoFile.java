@@ -6,10 +6,12 @@ import java.nio.charset.StandardCharsets;
 
 public class IoFile {
   private final String sourceFilePath;
-  private String absoluteFilePath;
+  private final String absoluteFilePath;
 
   public IoFile(String sourceFilePath) {
     this.sourceFilePath = sourceFilePath;
+    File file = new File(sourceFilePath);
+    this.absoluteFilePath = file.getAbsolutePath();
   }
 
   public String getAbsoluteFilePath() {
@@ -21,7 +23,6 @@ public class IoFile {
       throw new IOException("input is empty!");
     }
     File file = new File(sourceFilePath);
-    this.absoluteFilePath = file.getAbsolutePath();
     FileInputStream fis = new FileInputStream(file);
     if (!file.canRead()) {
       throw new IOException("Read permission denied");

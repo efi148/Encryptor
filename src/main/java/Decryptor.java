@@ -1,4 +1,4 @@
-public class Decryption {
+public class Decryptor {
     public String decryptData(String data, int key) {
         String newStr = "";
         for (int i = 0; i < data.length(); i++) {
